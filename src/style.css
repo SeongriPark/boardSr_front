@@ -1,0 +1,20 @@
+#button {
+    background-color: #FFF06D;
+    border: 1px solid black;
+    size: 10px
+}
+
+#boardlist, td, tr{
+    border: 1px solid black;
+    text-align: center;
+}
+
+#createPost {
+    border: 1px solid gray;
+    width: 400;
+    height: 300;
+}
+
+#paging {
+    margin: 3;
+}
