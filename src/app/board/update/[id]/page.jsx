@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Button from "@/components/Button";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-const UpdatePost = () => {
+const UpdatePost = ({params}) => {
 
-    const params = useSearchParams()
-    const id = params.get('id')
+    const id = params.id
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const router = useRouter()
@@ -28,7 +27,7 @@ const UpdatePost = () => {
             }
         }
         getPost();
-    }, []); // *의존성배열* 빈 배열 : 컴포넌트가 처음 렌더링 될 때 한 번만 실행(변수가 있다면 배열안의 변수가 변결될 때마다 실행/생략 시 렌더링할 때마다 실행)
+    }, []); // *의존성배열* 빈 배열 : 컴포넌트가 처음 렌더링 될 때 한 번만 실행(변수가 있다면 배열안의 변수가 변경될 때마다 실행/생략 시 렌더링할 때마다 실행)
 
     const handelSubmit = async (e) => {
         e.preventDefault();
@@ -49,7 +48,7 @@ const UpdatePost = () => {
     }
 
     const cancle = () => {
-        // 뒤로가기 라우터 구현 해야댐..!!//
+        router.back();
     }
 
     return (
@@ -65,8 +64,8 @@ const UpdatePost = () => {
                         <label htmlFor="content">내용</label>
                         <input type="textarea" id="content" value={content} onChange={(e) => setContent(e.target.value)} /><br/>
                         <Button text={"수정하기"} action={handelSubmit} />
-                        <Button text={"취소"} action={cancle}/>
                     </form>
+                    <Button text={"취소"} type="button" action={cancle}/>
                 </div>
             </div>
         </>

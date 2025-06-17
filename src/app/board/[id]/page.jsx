@@ -4,6 +4,7 @@ import Button from "@/components/Button"
 import "@/style.css"
 import React, {useState, useEffect} from "react"
 import { useRouter } from "next/navigation"
+import Comment from "@/components/Comment"
 
 const getPost = ({params}) => { // App Router 에서 동적 라우팅을 다룰 때 사용되는 방식. 
                                 // next.js가 동적 라우팅을 처리할 때 페이지에 자동으로 전달해주는 props 로 동적인 부분[id]를 담고있다.
@@ -11,7 +12,10 @@ const getPost = ({params}) => { // App Router 에서 동적 라우팅을 다룰 
                                 // fetch는 이 id 를 사용해서 서버에서 특정 게시물 데이터를 가져옴.
 
     const [post, setPost] = useState({}) // 상태는 컴포넌트가 내부적으로 관리하는 데이터로 컴포넌트가 동적으로 변하는 값을 기억하고, 값이 바뀌면 화면을 자동으로 업데이트 한다.
-                                         // 상태가 바뀌면 React가 Virtual Dom을 통해 필요한 부분만 렌더링한다.
+                                        // 상태가 바뀌면 React가 Virtual Dom을 통해 필요한 부분만 렌더링한다.
+    const [comment, setComment] = useState([]) // 이전에 작성된 댓글
+    const [newComment, setNewComment] = useState("") // 새로운 댓글
+
     const id = params.id
     const router = useRouter()
 
@@ -21,23 +25,28 @@ const getPost = ({params}) => { // App Router 에서 동적 라우팅을 다룰 
         // 시간이 걸리는 작업(서버에서 데이터 가져오기, 파일 읽기 등)을 처리할 때 주로 사용되며 서버 응답을 기다리는 동안 브라우저는 다른 작업을 계속 할 수 있다.
         // 비동기 : 일이 끝나기를 기다리지 않고, 다른 일을 동시에 진행 할 수 있는 방식.
         // JavaScript가 단일 스레드인데 비동기 작업이 가능한 이유는, 시간이 걸리는 작업(예: 네트워크 요청, 파일 읽기)을 브라우저나 Node.js의 내부 엔진에 위임하기 때문이다.
-        const getPost = async () => {
+        const fetchData = async () => {
 
             try{
-                const res = await fetch(`http://localhost:8080/api/board/${id}`);
-                const getPost = await res.json();
+                const postRes = await fetch(`http://localhost:8080/api/board/${id}`);
+                const getPost = await postRes.json();
                 console.log(getPost);
                 setPost(getPost);
+
+                const commentRes = await fetch(`http://localhost:8080/api/comment/${id}`)
+                const getComment = await commentRes.json();
+                console.log(getComment);
+                setComment(getComment);
             }catch(error) {
                 console.log(error);
             }
         }
-        getPost();
+        fetchData();
     }, []);
 
     // 페이지 이동
     const move = () => {
-        router.push(`/board/update/${id}?id=${id}`)
+        router.push(`/board/update/${id}`)
     }
 
     const deletePost = () => {
@@ -52,10 +61,28 @@ const getPost = ({params}) => { // App Router 에서 동적 라우팅을 다룰 
             } catch(error) {
                 console.log(error)
             }
-        } else {
-            // 취소
         }
     }
+
+    // 댓글생성
+    const createComment = async (e) => {
+        e.preventDefault();
+
+        try{
+            const res = await fetch(`http://localhost:8080/api/comment/create/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({content : newComment}),
+            });
+
+            alert("댓글이 등록되었습니다.");
+            window.location.reload(true);
+        }catch(error){
+            console.log(error);
+        }
+    };
 
     return(
         <>
@@ -80,14 +107,18 @@ const getPost = ({params}) => { // App Router 에서 동적 라우팅을 다룰 
                         <tr>
                             <td colSpan={3}>[댓글창]</td>
                         </tr>
-                        <tr>
-                            <td colSpan={3}>댓글 입력될 곳</td>
-                        </tr>
+                        <tbody>
+                            {comment.map((item) => (
+                                <Comment data={item}/>
+                            ))}
+                        </tbody>
                     </table>
                     <br/>
+                </div>
+                <div>
                     <form id="comment">
-                        <textarea id="comment"/>
-                        <Button text={"댓글쓰기"}/>
+                        <textarea id="comment" value={newComment} onChange={(e) => setNewComment(e.target.value)}/>
+                        <Button text={"댓글쓰기"} action={createComment}/>
                     </form>
                 </div>
             </div>
