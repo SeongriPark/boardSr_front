@@ -39,7 +39,7 @@ const createPost = () => {
                 </div>
                 <div>
                     <form id="createPost">
-                        <label htmlFor="title">글 제목</label>
+                        <label htmlFor="title">제목</label>
                         <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} required/><br/>
                         <label htmlFor="content">내용</label>
                         <textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} required/><br/>

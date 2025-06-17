@@ -2,31 +2,28 @@ import Button from "./Button";
 import React, { useState } from "react";
 
 export default function Reply({data}) {
-
-    const [newReply, setNewReply] = useState(data.content); // 수정된 대댓글
-    const [isEditing, setIsEditing] = useState(false); // 대댓글 수정 상태 여부
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedContent, setEditedContent] = useState(data.content);
 
     // 대댓글 수정
     const modifyReply = async () => {
         try {
             const res = await fetch(`http://localhost:8080/api/comment/reply/update/${data.id}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ content: newReply }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: editedContent }),
             });
 
             if (res.ok) {
                 alert('대댓글이 수정되었습니다.');
-                setIsEditing(false);
-                window.location.reload(true);
+                window.location.reload();
             } else {
                 alert('대댓글 수정에 실패했습니다.');
             }
         } catch (error) {
             console.error(error);
         }
+        setIsEditing(false);
     };
 
     // 대댓글 삭제
@@ -36,10 +33,9 @@ export default function Reply({data}) {
                 const res = await fetch(`http://localhost:8080/api/comment/reply/delete/${data.id}`, {
                     method: 'DELETE'
                 });
-
                 if (res.ok) {
                     alert("대댓글이 삭제되었습니다.");
-                    window.location.reload(true);
+                    window.location.reload();
                 } else {
                     alert("대댓글 삭제에 실패했습니다.");
                 }
@@ -51,33 +47,39 @@ export default function Reply({data}) {
 
     const cancelEdit = () => {
         setIsEditing(false);
-        setNewReply(data.content);
+        setEditedContent(data.content);
     };
 
     return(
-        <tr>
-            <td colSpan={3}>
+        <div className="reply-item">
+             <div className="reply-author-box">
+                <span>{data.name || 'ㄴ 익명댓글'}</span>
+            </div>
+            <div className="reply-content-box">
                 {isEditing ? (
                     <input
                         type="text"
-                        value={newReply}
-                        onChange={(e) => setNewReply(e.target.value)}
+                        className="comment-edit-input"
+                        value={editedContent}
+                        onChange={(e) => setEditedContent(e.target.value)}
                     />
                 ) : (
-                    "ㄴ " + data.content
+                    <span>{data.content}</span>
                 )}
-            </td>
-            {isEditing ? (
-                <>
-                    <td><Button text={"저장"} action={modifyReply}/></td>
-                    <td><Button text={"취소"} action={cancelEdit}/></td>
-                </>
-            ) : (
-                <>
-                    <td><Button text={"수정"} action={() => setIsEditing(true)}/></td>
-                    <td><Button text={"삭제"} action={deleteReply}/></td>
-                </>
-            )}
-        </tr>
+            </div>
+            <div className="reply-actions">
+                {isEditing ? (
+                    <>
+                        <Button text={"저장"} action={modifyReply}/>
+                        <Button text={"취소"} action={cancelEdit}/>
+                    </>
+                ) : (
+                    <>
+                        <Button text={"수정"} action={() => setIsEditing(true)}/>
+                        <Button text={"삭제"} action={deleteReply}/>
+                    </>
+                )}
+            </div>
+        </div>
     )
 }

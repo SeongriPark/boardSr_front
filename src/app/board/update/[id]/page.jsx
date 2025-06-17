@@ -64,8 +64,8 @@ const UpdatePost = ({params}) => {
                         <label htmlFor="content">내용</label>
                         <input type="textarea" id="content" value={content} onChange={(e) => setContent(e.target.value)} /><br/>
                         <Button text={"수정하기"} action={handelSubmit} />
+                        <Button text={"취소"} type="button" action={cancle}/>
                     </form>
-                    <Button text={"취소"} type="button" action={cancle}/>
                 </div>
             </div>
         </>
